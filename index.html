@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KertasCalc - Kalkulator & Estimasi Percetakan Kertas</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#2563eb">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="KertasCalc">
+    <meta name="description" content="Kalkulator potong kertas plano, berat GSM, dan estimasi biaya percetakan lengkap.">
+    <link rel="manifest" id="manifestLink">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- GOOGLE ADSENSE SCRIPT -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234567890123456" crossorigin="anonymous"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+
+    <!-- Header / Navbar -->
+    <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo & Title -->
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-blue-600 text-white rounded-xl shadow-md">
+                        <i data-lucide="scissors" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                            KertasCalc
+                        </h1>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Kalkulator & Estimasi Percetakan Kertas</p>
+                    </div>
+                </div>
+
+                <!-- Theme Toggle & Install App -->
+                <div class="flex items-center space-x-2">
+                    <button id="installAppBtn" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition shadow-sm">
+                        <i data-lucide="download" class="w-4 h-4"></i> Install App
+                    </button>
+                    <button id="themeToggle" class="p-2.5 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                        <i data-lucide="moon" id="themeIconMoon" class="w-5 h-5 hidden"></i>
+                        <i data-lucide="sun" id="themeIconSun" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="flex space-x-2 sm:space-x-8 overflow-x-auto no-scrollbar py-2" aria-label="Tabs">
+                <button onclick="switchTab('cutCalc')" id="tab-cutCalc" class="tab-btn inline-flex items-center px-4 py-2.5 border-b-2 font-medium text-sm whitespace-nowrap border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400">
+                    <i data-lucide="layout-grid" class="w-4 h-4 mr-2"></i> Potongan Kertas (Layout)
+                </button>
+                <button onclick="switchTab('weightCalc')" id="tab-weightCalc" class="tab-btn inline-flex items-center px-4 py-2.5 border-b-2 font-medium text-sm whitespace-nowrap border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-200">
+                    <i data-lucide="scale" class="w-4 h-4 mr-2"></i> Berat Kertas & GSM
+                </button>
+                <button onclick="switchTab('priceCalc')" id="tab-priceCalc" class="tab-btn inline-flex items-center px-4 py-2.5 border-b-2 font-medium text-sm whitespace-nowrap border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-200">
+                    <i data-lucide="calculator" class="w-4 h-4 mr-2"></i> Estimasi Biaya
+                </button>
+                <button onclick="switchTab('sizeGuide')" id="tab-sizeGuide" class="tab-btn inline-flex items-center px-4 py-2.5 border-b-2 font-medium text-sm whitespace-nowrap border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-200">
+                    <i data-lucide="book-open" class="w-4 h-4 mr-2"></i> Kamus Ukuran Standar
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- BANNER IKLAN ATAS -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+        <div class="bg-slate-200 dark:bg-slate-800 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-3 text-center min-h-[90px] flex flex-col justify-center items-center shadow-inner overflow-hidden">
+            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1">Iklan / Advertisement</span>
+            <ins class="adsbygoogle"
+                 style="display:block; width:100%; max-height:90px;"
+                 data-ad-client="ca-pub-1234567890123456"
+                 data-ad-slot="1234567890"
+                 data-ad-format="horizontal"
+                 data-full-width-responsive="true"></ins>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- ================= TAB 1: KALKULATOR POTONGAN KERTAS ================= -->
+        <div id="content-cutCalc" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Form Input Ukuran Plano & Target -->
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-5">
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i data-lucide="maximize-2" class="text-blue-600"></i> Ukuran Kertas Plano (Induk)
+                    </h2>
+
+                    <!-- Preset Plano -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-2">Preset Ukuran Plano (cm)</label>
+                        <select id="planoPreset" onchange="applyPlanoPreset()" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <option value="61x86">BC / Brief Card / Manila (61 x 86 cm)</option>
+                            <option value="65x100" selected>Art Paper / Matt Paper / Carton (65 x 100 cm)</option>
+                            <option value="79x109">Art Paper / Duplex / Ivory (79 x 109 cm)</option>
+                            <option value="65x90">HVS / Bookpaper (65 x 90 cm)</option>
+                            <option value="79x109_duplex">Karton Duplex Besar (79 x 109 cm)</option>
+                            <option value="custom">-- Custom Ukuran --</option>
+                        </select>
+                    </div>
+
+                    <!-- Input Ukuran Plano Custom -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Panjang Plano (cm)</label>
+                            <input type="number" id="planoW" value="65" step="0.1" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-sm font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="calculateCutting()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Lebar Plano (cm)</label>
+                            <input type="number" id="planoH" value="100" step="0.1" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-sm font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="calculateCutting()">
+                        </div>
+                    </div>
+
+                    <hr class="border-slate-200 dark:border-slate-700">
+
+                    <!-- Target Ukuran Potongan -->
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <i data-lucide="scissors" class="text-indigo-600"></i> Ukuran Potongan Jadi
+                        </h2>
+                        <span class="text-xs text-slate-400">Target</span>
+                    </div>
+
+                    <!-- Preset Target -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-2">Preset Ukuran Potong</label>
+                        <select id="targetPreset" onchange="applyTargetPreset()" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <option value="21x29.7" selected>A4 (21 x 29.7 cm)</option>
+                            <option value="14.8x21">A5 (14.8 x 21 cm)</option>
+                            <option value="29.7x42">A3 (29.7 x 42 cm)</option>
+                            <option value="32x48">A3+ Super / Cetak (32 x 48 cm)</option>
+                            <option value="21.5x33">F4 / Folio (21.5 x 33 cm)</option>
+                            <option value="9x5.5">Kartu Nama (9 x 5.5 cm)</option>
+                            <option value="custom">-- Custom Ukuran --</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Panjang Target (cm)</label>
+                            <input type="number" id="targetW" value="21" step="0.1" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-sm font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="calculateCutting()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Lebar Target (cm)</label>
+                            <input type="number" id="targetH" value="29.7" step="0.1" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-sm font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="calculateCutting()">
+                        </div>
+                    </div>
+
+                    <!-- Margin Bleed -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Jarak Pisau Potong / Bleed (cm)</label>
+                        <input type="number" id="marginBleed" value="0" step="0.1" min="0" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="calculateCutting()">
+                        <p class="text-[11px] text-slate-400 mt-1">*Beri nilai jika ada jarak pisau potong per cetakan.</p>
+                    </div>
+
+                    <!-- Target Jumlah Cetak -->
+                    <div class="bg-blue-50 dark:bg-slate-700/50 p-3.5 rounded-xl border border-blue-100 dark:border-slate-700">
+                        <label class="block text-xs font-semibold text-blue-900 dark:text-blue-300 mb-1">Kebutuhan Jumlah Lembar Jadi</label>
+                        <input type="number" id="neededPieces" value="1000" min="1" class="w-full bg-white dark:bg-slate-800 border border-blue-200 dark:border-slate-600 rounded-lg p-2 text-sm font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="calculateCutting()">
+                    </div>
+                </div>
+
+                <!-- Preview Visual & Hasil Layout -->
+                <div class="lg:col-span-2 space-y-6">
+                    
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm text-center">
+                            <p class="text-xs text-slate-400 font-medium uppercase">Hasil Per Plano</p>
+                            <p id="resOutPerSheet" class="text-2xl font-black text-blue-600 dark:text-blue-400 mt-1">9</p>
+                            <p class="text-[11px] text-slate-400">potongan/lembar</p>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm text-center">
+                            <p class="text-xs text-slate-400 font-medium uppercase">Efisiensi Bahan</p>
+                            <p id="resEfficiency" class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">86.6%</p>
+                            <p class="text-[11px] text-slate-400">kertas terpakai</p>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm text-center">
+                            <p class="text-xs text-slate-400 font-medium uppercase">Butuh Plano</p>
+                            <p id="resTotalPlano" class="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-1">112</p>
+                            <p class="text-[11px] text-slate-400">lembar plano</p>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm text-center">
+                            <p class="text-xs text-slate-400 font-medium uppercase">Jumlah Rim Plano</p>
+                            <p id="resTotalRim" class="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">0.23</p>
+                            <p class="text-[11px] text-slate-400">Rim (1 Rim = 500)</p>
+                        </div>
+                    </div>
+
+                    <!-- Visual Simulasi Pemotongan -->
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
+                            <div>
+                                <h3 class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    <i data-lucide="eye" class="w-4 h-4 text-blue-600"></i> Visual Simulasi Pemotongan
+                                </h3>
+                                <p id="detailLayoutText" class="text-xs text-slate-500">Gambaran arah potong kertas plano</p>
+                            </div>
+                            <!-- Orientation Control Option -->
+                            <div class="flex items-center space-x-2 bg-slate-100 dark:bg-slate-700 p-1 rounded-lg text-xs font-semibold">
+                                <button id="orientOptimal" onclick="setOrientation('optimal')" class="px-3 py-1 rounded-md bg-white dark:bg-slate-800 text-blue-600 shadow-sm">Otomatis Optimal</button>
+                                <button id="orientNormal" onclick="setOrientation('normal')" class="px-3 py-1 rounded-md text-slate-600 dark:text-slate-300">Sejajar</button>
+                                <button id="orientRotated" onclick="setOrientation('rotated')" class="px-3 py-1 rounded-md text-slate-600 dark:text-slate-300">Putar 90°</button>
+                            </div>
+                        </div>
+
+                        <!-- Canvas Container -->
+                        <div class="w-full flex justify-center items-center bg-slate-100 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 min-h-[300px] overflow-hidden">
+                            <canvas id="cuttingCanvas" class="max-w-full rounded shadow-sm"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- IKLAN TENGAH HALAMAN -->
+                    <div class="bg-slate-200 dark:bg-slate-800 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-4 text-center min-h-[120px] flex flex-col justify-center items-center shadow-inner overflow-hidden">
+                        <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1">Sponsor / Iklan</span>
+                        <ins class="adsbygoogle"
+                             style="display:block; width:100%;"
+                             data-ad-format="fluid"
+                             data-ad-layout-key="-fb+5w+4e-db+86"
+                             data-ad-client="ca-pub-1234567890123456"
+                             data-ad-slot="0987654321"></ins>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 2: KALKULATOR BERAT KERTAS & GSM ================= -->
+        <div id="content-weightCalc" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- Form Berat -->
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-5">
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i data-lucide="scale" class="text-emerald-600"></i> Hitung Berat Kertas
+                    </h2>
+                    <p class="text-xs text-slate-500 -mt-3">Rumus standar perhitungan tonase / berat total lembaran kertas.</p>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Gramatur Kertas (GSM / g/m²)</label>
+                        <div class="relative">
+                            <input type="number" id="gsmInput" value="80" min="1" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-sm font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none" oninput="calculateWeight()">
+                            <span class="absolute right-3 top-2.5 text-xs text-slate-400 font-bold">GSM</span>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5 mt-2">
+                            <button onclick="setGSM(70)" class="text-xs bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 px-2 py-1 rounded">70 gr</button>
+                            <button onclick="setGSM(80)" class="text-xs bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 px-2 py-1 rounded">80 gr</button>
+                            <button onclick="setGSM(150)" class="text-xs bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 px-2 py-1 rounded">150 gr</button>
+                            <button onclick="setGSM(210)" class="text-xs bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 px-2 py-1 rounded">210 gr</button>
+                            <button onclick="setGSM(260)" class="text-xs bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 px-2 py-1 rounded">260 gr</button>
+                            <button onclick="setGSM(310)" class="text-xs bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 px-2 py-1 rounded">310 gr</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Panjang Kertas (cm)</label>
+                            <input type="number" id="wLength" value="65" step="0.1" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-sm font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none" oninput="calculateWeight()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Lebar Kertas (cm)</label>
+                            <input type="number" id="wWidth" value="100" step="0.1" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-sm font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none" oninput="calculateWeight()">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Jumlah Rim</label>
+                            <input type="number" id="wReams" value="10" step="0.1" min="0" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-sm font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none" oninput="updateSheetFromReam()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Atau Total Lembar</label>
+                            <input type="number" id="wSheets" value="5000" min="1" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-sm font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none" oninput="updateReamFromSheet()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hasil Perhitungan Berat -->
+                <div class="bg-gradient-to-br from-emerald-500 to-teal-700 text-white p-6 rounded-2xl shadow-lg flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between border-b border-white/20 pb-4">
+                            <h3 class="font-bold text-lg flex items-center gap-2">
+                                <i data-lucide="package"></i> Hasil Total Berat
+                            </h3>
+                            <span class="text-xs bg-white/20 px-2.5 py-1 rounded-full">Formulasi Standar</span>
+                        </div>
+
+                        <div class="mt-8 space-y-6">
+                            <div>
+                                <p class="text-xs uppercase text-emerald-100 font-semibold tracking-wider">Berat Per Lembar</p>
+                                <p id="resWeightPerSheet" class="text-3xl font-black mt-1">52.00 <span class="text-lg font-normal">Gram</span></p>
+                            </div>
+
+                            <div>
+                                <p class="text-xs uppercase text-emerald-100 font-semibold tracking-wider">Berat Per Rim (500 lbr)</p>
+                                <p id="resWeightPerReam" class="text-3xl font-black mt-1">26.00 <span class="text-lg font-normal">Kg</span></p>
+                            </div>
+
+                            <div class="pt-4 border-t border-white/20">
+                                <p class="text-xs uppercase text-emerald-100 font-semibold tracking-wider">TOTAL BERAT KESELURUHAN</p>
+                                <p id="resTotalWeightKg" class="text-5xl font-black mt-1 text-yellow-300">260.00 <span class="text-2xl font-normal text-white">Kg</span></p>
+                                <p id="resTotalWeightTon" class="text-sm text-emerald-100 mt-1">(± 0.26 Ton)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formula Box Info -->
+                    <div class="mt-8 bg-black/20 p-3.5 rounded-xl text-xs text-emerald-100 space-y-1">
+                        <p class="font-semibold text-white">Rumus Berat Kertas:</p>
+                        <p class="font-mono">( P(cm) x L(cm) x GSM ) / 20.000 = Kg / Rim</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ================= TAB 3: ESTIMASI BIAYA & HARGA ================= -->
+        <div id="content-priceCalc" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                <!-- Form Biaya -->
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-5">
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i data-lucide="coins" class="text-amber-500"></i> Hitung Estimasi Biaya Kertas
+                    </h2>
+                    
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Metode Pembelian Kertas</label>
+                        <select id="priceMethod" onchange="calculatePricing()" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-sm font-semibold focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                            <option value="perKg">Berdasarkan Berat (Harga per Kg)</option>
+                            <option value="perReam">Berdasarkan Pack (Harga per Rim)</option>
+                            <option value="perSheet">Berdasarkan Lembar Plano (Harga per Lembar)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Harga Satuan Kertas (Rp)</label>
+                        <input type="number" id="priceUnitPrice" value="25000" min="0" step="500" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-sm font-semibold focus:ring-2 focus:ring-amber-500 focus:outline-none" oninput="calculatePricing()">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Jumlah Kertas Plano Dibutuhkan (Rim)</label>
+                        <input type="number" id="priceTotalReams" value="5" min="0.1" step="0.1" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-sm font-semibold focus:ring-2 focus:ring-amber-500 focus:outline-none" oninput="calculatePricing()">
+                    </div>
+
+                    <hr class="border-slate-200 dark:border-slate-700">
+
+                    <!-- Spesifikasi jika memilih per Kg -->
+                    <div id="priceKgSpecs" class="space-y-3">
+                        <p class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase">Spesifikasi Ukuran & GSM (Untuk hitung Kg)</p>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div>
+                                <label class="text-[11px] text-slate-400">P (cm)</label>
+                                <input type="number" id="pKgW" value="65" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-xs" oninput="calculatePricing()">
+                            </div>
+                            <div>
+                                <label class="text-[11px] text-slate-400">L (cm)</label>
+                                <input type="number" id="pKgH" value="100" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-xs" oninput="calculatePricing()">
+                            </div>
+                            <div>
+                                <label class="text-[11px] text-slate-400">GSM</label>
+                                <input type="number" id="pKgGsm" value="210" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-xs" oninput="calculatePricing()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tambahan Biaya Potong / Ongkir (Rp)</label>
+                        <input type="number" id="priceExtraCost" value="50000" min="0" step="5000" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-sm font-semibold focus:ring-2 focus:ring-amber-500 focus:outline-none" oninput="calculatePricing()">
+                    </div>
+                </div>
+
+                <!-- Rincian Biaya -->
+                <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-700 pb-3 flex items-center justify-between">
+                            <span>Rincian Estimasi Pembelian</span>
+                            <i data-lucide="receipt" class="text-amber-500"></i>
+                        </h3>
+
+                        <div class="mt-6 space-y-4">
+                            <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100 dark:border-slate-700/50">
+                                <span class="text-slate-500">Total Lembar Plano</span>
+                                <span id="resPriceTotalSheets" class="font-semibold">2,500 lembar</span>
+                            </div>
+
+                            <div id="rowTotalWeight" class="flex justify-between items-center text-sm py-2 border-b border-slate-100 dark:border-slate-700/50">
+                                <span class="text-slate-500">Estimasi Berat Total</span>
+                                <span id="resPriceTotalWeight" class="font-semibold">341.25 Kg</span>
+                            </div>
+
+                            <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100 dark:border-slate-700/50">
+                                <span class="text-slate-500">Subtotal Bahan Kertas</span>
+                                <span id="resPriceSubtotal" class="font-semibold text-slate-800 dark:text-slate-200">Rp 8,531,250</span>
+                            </div>
+
+                            <div class="flex justify-between items-center text-sm py-2 border-b border-slate-100 dark:border-slate-700/50">
+                                <span class="text-slate-500">Biaya Tambahan (Potong/Kirim)</span>
+                                <span id="resPriceExtra" class="font-semibold text-slate-800 dark:text-slate-200">Rp 50,000</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 bg-amber-50 dark:bg-amber-950/40 p-5 rounded-xl border border-amber-200 dark:border-amber-800/50">
+                        <p class="text-xs text-amber-800 dark:text-amber-400 uppercase font-bold tracking-wider">ESTIMASI TOTAL BIAYA</p>
+                        <p id="resPriceGrandTotal" class="text-4xl font-black text-amber-600 dark:text-amber-400 mt-1">Rp 8,581,250</p>
+                        <p id="resPricePerSheetUnit" class="text-xs text-amber-700 dark:text-amber-500 mt-2 font-medium">*Modal per lembar plano: Rp 3,433</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ================= TAB 4: KAMUS UKURAN STANDAR KERTAS ================= -->
+        <div id="content-sizeGuide" class="tab-content hidden space-y-6">
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <i data-lucide="book-open" class="text-indigo-600"></i> Panduan Standar Ukuran Kertas
+                        </h2>
+                        <p class="text-xs text-slate-500">Daftar dimensi ukuran kertas standar ISO Series (A, B) & Ukuran Pasar Percetakan Indonesia.</p>
+                    </div>
+                    <!-- Quick Filter Search -->
+                    <input type="text" id="searchSize" onkeyup="filterSizes()" placeholder="Cari ukuran (misal: A4, Folio)..." class="bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none w-full md:w-64">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="sizeGrid">
+                    
+                    <!-- Seri A -->
+                    <div class="size-card bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-2 mb-3">
+                            <h3 class="font-bold text-blue-600 dark:text-blue-400">Seri ISO A</h3>
+                            <span class="text-[10px] bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-2 py-0.5 rounded-full font-semibold">Standar Internasional</span>
+                        </div>
+                        <ul class="space-y-2 text-xs">
+                            <li class="flex justify-between"><span>A0</span> <span class="font-mono font-semibold">84.1 x 118.9 cm</span></li>
+                            <li class="flex justify-between"><span>A1</span> <span class="font-mono font-semibold">59.4 x 84.1 cm</span></li>
+                            <li class="flex justify-between"><span>A2</span> <span class="font-mono font-semibold">42.0 x 59.4 cm</span></li>
+                            <li class="flex justify-between font-bold text-slate-900 dark:text-white bg-blue-50 dark:bg-blue-950/50 p-1 rounded"><span>A3</span> <span class="font-mono">29.7 x 42.0 cm</span></li>
+                            <li class="flex justify-between text-blue-600 dark:text-blue-400 font-bold bg-blue-100/50 dark:bg-blue-900/40 p-1 rounded"><span>A3+ (Super A3)</span> <span class="font-mono">32.0 x 48.0 cm</span></li>
+                            <li class="flex justify-between font-bold text-slate-900 dark:text-white bg-blue-50 dark:bg-blue-950/50 p-1 rounded"><span>A4</span> <span class="font-mono">21.0 x 29.7 cm</span></li>
+                            <li class="flex justify-between"><span>A5</span> <span class="font-mono font-semibold">14.8 x 21.0 cm</span></li>
+                            <li class="flex justify-between"><span>A6</span> <span class="font-mono font-semibold">10.5 x 14.8 cm</span></li>
+                        </ul>
+                    </div>
+
+                    <!-- Seri Kertas Kantor & Cetak Indonesia -->
+                    <div class="size-card bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-2 mb-3">
+                            <h3 class="font-bold text-emerald-600 dark:text-emerald-400">Kantor & Pasar (ID)</h3>
+                            <span class="text-[10px] bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200 px-2 py-0.5 rounded-full font-semibold">Umum Ditemui</span>
+                        </div>
+                        <ul class="space-y-2 text-xs">
+                            <li class="flex justify-between font-bold text-slate-900 dark:text-white bg-emerald-50 dark:bg-emerald-950/50 p-1 rounded"><span>F4 / Folio</span> <span class="font-mono">21.5 x 33.0 cm</span></li>
+                            <li class="flex justify-between"><span>Kuarto / Letter</span> <span class="font-mono font-semibold">21.6 x 27.9 cm</span></li>
+                            <li class="flex justify-between"><span>Legal</span> <span class="font-mono font-semibold">21.6 x 35.6 cm</span></li>
+                            <li class="flex justify-between"><span>Double Folio</span> <span class="font-mono font-semibold">43.0 x 33.0 cm</span></li>
+                            <li class="flex justify-between"><span>Kartu Nama Standard</span> <span class="font-mono font-semibold">9.0 x 5.5 cm</span></li>
+                            <li class="flex justify-between"><span>Brosur A4 Trifold</span> <span class="font-mono font-semibold">21.0 x 29.7 cm</span></li>
+                        </ul>
+                    </div>
+
+                    <!-- Kertas Plano (Induk) -->
+                    <div class="size-card bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-2 mb-3">
+                            <h3 class="font-bold text-amber-600 dark:text-amber-400">Kertas Induk (Plano)</h3>
+                            <span class="text-[10px] bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 px-2 py-0.5 rounded-full font-semibold">Bahan Pabrik</span>
+                        </div>
+                        <ul class="space-y-2 text-xs">
+                            <li class="flex justify-between"><span>BC / Manila</span> <span class="font-mono font-semibold">61.0 x 86.0 cm</span></li>
+                            <li class="flex justify-between"><span>HVS / Bookpaper</span> <span class="font-mono font-semibold">65.0 x 90.0 cm</span></li>
+                            <li class="flex justify-between"><span>Art Paper Standard</span> <span class="font-mono font-semibold">65.0 x 100.0 cm</span></li>
+                            <li class="flex justify-between"><span>Ivory / Duplex / Art</span> <span class="font-mono font-semibold">79.0 x 109.0 cm</span></li>
+                            <li class="flex justify-between"><span>Samson Kraft</span> <span class="font-mono font-semibold">90.0 x 120.0 cm</span></li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 py-6 text-center text-xs text-slate-500 dark:text-slate-400">
+        <p>© 2026 KertasCalc. Aplikasi Alat Hitung Kertas Percetakan & Estimasi Layout.</p>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- Dynamic PWA Manifest Injection ---
+        const manifestData = {
+            "name": "KertasCalc - Kalkulator Percetakan",
+            "short_name": "KertasCalc",
+            "start_url": "./index.html",
+            "display": "standalone",
+            "background_color": "#0f172a",
+            "theme_color": "#2563eb",
+            "orientation": "any",
+            "icons": [
+                {
+                    "src": "https://cdn-icons-png.flaticon.com/512/337/337946.png",
+                    "sizes": "192x192",
+                    "type": "image/png"
+                },
+                {
+                    "src": "https://cdn-icons-png.flaticon.com/512/337/337946.png",
+                    "sizes": "512x512",
+                    "type": "image/png"
+                }
+            ]
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifestData)], {type: 'application/json'});
+        document.getElementById('manifestLink').setAttribute('href', URL.createObjectURL(manifestBlob));
+
+        // --- PWA Service Worker Registration ---
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                const CACHE_NAME = 'kertascalc-v1';
+                self.addEventListener('install', e => {
+                    e.waitUntil(
+                        caches.open(CACHE_NAME).then(cache => {
+                            return cache.addAll(['./index.html']);
+                        })
+                    );
+                });
+                self.addEventListener('fetch', e => {
+                    e.respondWith(
+                        caches.match(e.request).then(response => response || fetch(e.request))
+                    );
+                });
+            `;
+            const blob = new Blob([swCode], { type: 'application/javascript' });
+            const swUrl = URL.createObjectURL(blob);
+            navigator.serviceWorker.register(swUrl).catch(() => {});
+        }
+
+        // --- Deferred Install Prompt ---
+        let deferredPrompt;
+        const installBtn = document.getElementById('installAppBtn');
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if(installBtn) installBtn.classList.remove('hidden');
+        });
+
+        if(installBtn) {
+            installBtn.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                        installBtn.classList.add('hidden');
+                    }
+                    deferredPrompt = null;
+                }
+            });
+        }
+
+        // --- State Management ---
+        let currentOrientationMode = 'optimal';
+
+        // --- Window Onload Initialization ---
+        window.onload = function() {
+            lucide.createIcons();
+            
+            try {
+                (adsbygoogle = window.adsbygoogle || []).push({});
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            } catch (e) {}
+
+            calculateCutting();
+            calculateWeight();
+            calculatePricing();
+            
+            window.addEventListener('resize', calculateCutting);
+        };
+
+        // --- Theme Switcher ---
+        const themeToggleBtn = document.getElementById('themeToggle');
+        themeToggleBtn.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            document.getElementById('themeIconSun').classList.toggle('hidden', !isDark);
+            document.getElementById('themeIconMoon').classList.toggle('hidden', isDark);
+            calculateCutting();
+        });
+
+        // --- Tab Switcher ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('border-blue-600', 'text-blue-600', 'dark:text-blue-400', 'dark:border-blue-400');
+                el.classList.add('border-transparent', 'text-slate-500');
+            });
+
+            const targetContent = document.getElementById(`content-${tabId}`);
+            if (targetContent) targetContent.classList.remove('hidden');
+            
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('border-transparent', 'text-slate-500');
+                activeBtn.classList.add('border-blue-600', 'text-blue-600', 'dark:text-blue-400', 'dark:border-blue-400');
+            }
+
+            if(tabId === 'cutCalc') {
+                calculateCutting();
+            }
+        }
+
+        // --- TAB 1: KALKULATOR POTONGAN KERTAS ---
+
+        function applyPlanoPreset() {
+            const val = document.getElementById('planoPreset').value;
+            if (val === 'custom') return;
+            const [w, h] = val.split('x').map(Number);
+            document.getElementById('planoW').value = w;
+            document.getElementById('planoH').value = h;
+            calculateCutting();
+        }
+
+        function applyTargetPreset() {
+            const val = document.getElementById('targetPreset').value;
+            if (val === 'custom') return;
+            const [w, h] = val.split('x').map(Number);
+            document.getElementById('targetW').value = w;
+            document.getElementById('targetH').value = h;
+            calculateCutting();
+        }
+
+        function setOrientation(mode) {
+            currentOrientationMode = mode;
+            ['optimal', 'normal', 'rotated'].forEach(m => {
+                const btn = document.getElementById(`orient${m.charAt(0).toUpperCase() + m.slice(1)}`);
+                if (btn) {
+                    if (m === mode) {
+                        btn.className = 'px-3 py-1 rounded-md bg-white dark:bg-slate-800 text-blue-600 shadow-sm font-bold';
+                    } else {
+                        btn.className = 'px-3 py-1 rounded-md text-slate-600 dark:text-slate-300';
+                    }
+                }
+            });
+            calculateCutting();
+        }
+
+        function calculateCutting() {
+            const pWInput = document.getElementById('planoW');
+            const pHInput = document.getElementById('planoH');
+            const tWInput = document.getElementById('targetW');
+            const tHInput = document.getElementById('targetH');
+
+            if (!pWInput || !pHInput || !tWInput || !tHInput) return;
+
+            const pW = parseFloat(pWInput.value) || 0;
+            const pH = parseFloat(pHInput.value) || 0;
+            let tW = parseFloat(tWInput.value) || 0;
+            let tH = parseFloat(tHInput.value) || 0;
+            const bleed = parseFloat(document.getElementById('marginBleed')?.value) || 0;
+            const needed = parseInt(document.getElementById('neededPieces')?.value) || 0;
+
+            if (pW <= 0 || pH <= 0 || tW <= 0 || tH <= 0) return;
+
+            tW += bleed;
+            tH += bleed;
+
+            let cols = 0, rows = 0;
+            let outPerSheet = 0;
+
+            const cols1 = Math.floor(pW / tW);
+            const rows1 = Math.floor(pH / tH);
+            const total1 = cols1 * rows1;
+
+            const cols2 = Math.floor(pW / tH);
+            const rows2 = Math.floor(pH / tW);
+            const total2 = cols2 * rows2;
+
+            let selectedMode = currentOrientationMode;
+
+            if (currentOrientationMode === 'optimal') {
+                if (total1 >= total2) {
+                    cols = cols1;
+                    rows = rows1;
+                    outPerSheet = total1;
+                    selectedMode = 'normal';
+                } else {
+                    cols = cols2;
+                    rows = rows2;
+                    outPerSheet = total2;
+                    selectedMode = 'rotated';
+                }
+            } else if (currentOrientationMode === 'normal') {
+                cols = cols1;
+                rows = rows1;
+                outPerSheet = total1;
+            } else {
+                cols = cols2;
+                rows = rows2;
+                outPerSheet = total2;
+            }
+
+            const planoArea = pW * pH;
+            const targetArea = (tW - bleed) * (tH - bleed);
+            const usedArea = targetArea * outPerSheet;
+            const efficiency = planoArea > 0 ? ((usedArea / planoArea) * 100).toFixed(1) : 0;
+
+            const totalPlanoNeeded = outPerSheet > 0 ? Math.ceil(needed / outPerSheet) : 0;
+            const totalRimNeeded = (totalPlanoNeeded / 500).toFixed(2);
+
+            const elOutPerSheet = document.getElementById('resOutPerSheet');
+            const elEfficiency = document.getElementById('resEfficiency');
+            const elTotalPlano = document.getElementById('resTotalPlano');
+            const elTotalRim = document.getElementById('resTotalRim');
+            const elDetailText = document.getElementById('detailLayoutText');
+
+            if (elOutPerSheet) elOutPerSheet.innerText = outPerSheet;
+            if (elEfficiency) elEfficiency.innerText = `${efficiency}%`;
+            if (elTotalPlano) elTotalPlano.innerText = totalPlanoNeeded;
+            if (elTotalRim) elTotalRim.innerText = totalRimNeeded;
+
+            const itemW = selectedMode === 'rotated' ? tH : tW;
+            const itemH = selectedMode === 'rotated' ? tW : tH;
+            if (elDetailText) {
+                elDetailText.innerText = `Layout: ${cols} kolom x ${rows} baris = ${outPerSheet} pcs (${itemW.toFixed(1)} x ${itemH.toFixed(1)} cm)`;
+            }
+
+            renderCuttingCanvas(pW, pH, itemW, itemH, cols, rows);
+        }
+
+        function renderCuttingCanvas(pW, pH, itemW, itemH, cols, rows) {
+            const canvas = document.getElementById('cuttingCanvas');
+            if (!canvas || !canvas.parentElement) return;
+            const ctx = canvas.getContext('2d');
+            const container = canvas.parentElement;
+
+            const padding = 20;
+            const maxW = container.clientWidth - padding * 2;
+            const maxH = container.clientHeight - padding * 2;
+
+            if (maxW <= 0 || maxH <= 0) return;
+
+            const scale = Math.min(maxW / pW, maxH / pH);
+
+            canvas.width = pW * scale;
+            canvas.height = pH * scale;
+
+            const isDark = document.documentElement.classList.contains('dark');
+
+            ctx.fillStyle = isDark ? '#1e293b' : '#f8fafc';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = isDark ? 'rgba(239, 68, 68, 0.15)' : 'rgba(254, 226, 226, 0.8)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const boxW = itemW * scale;
+            const boxH = itemH * scale;
+
+            ctx.fillStyle = isDark ? 'rgba(59, 130, 246, 0.25)' : 'rgba(219, 234, 254, 0.9)';
+            ctx.strokeStyle = isDark ? '#60a5fa' : '#2563eb';
+            ctx.lineWidth = 1.5;
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const x = c * boxW;
+                    const y = r * boxH;
+
+                    ctx.fillRect(x, y, boxW, boxH);
+                    ctx.strokeRect(x, y, boxW, boxH);
+
+                    if (boxW > 15 && boxH > 15) {
+                        ctx.fillStyle = isDark ? '#93c5fd' : '#1e40af';
+                        ctx.font = '10px Inter, sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(`${(r * cols) + c + 1}`, x + boxW / 2, y + boxH / 2);
+                        ctx.fillStyle = isDark ? 'rgba(59, 130, 246, 0.25)' : 'rgba(219, 234, 254, 0.9)';
+                    }
+                }
+            }
+
+            ctx.strokeStyle = isDark ? '#94a3b8' : '#475569';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // --- TAB 2: KALKULATOR BERAT KERTAS ---
+
+        function setGSM(val) {
+            document.getElementById('gsmInput').value = val;
+            calculateWeight();
+        }
+
+        function updateSheetFromReam() {
+            const reams = parseFloat(document.getElementById('wReams').value) || 0;
+            document.getElementById('wSheets').value = Math.round(reams * 500);
+            calculateWeight();
+        }
+
+        function updateReamFromSheet() {
+            const sheets = parseInt(document.getElementById('wSheets').value) || 0;
+            document.getElementById('wReams').value = (sheets / 500).toFixed(2);
+            calculateWeight();
+        }
+
+        function calculateWeight() {
+            const gsm = parseFloat(document.getElementById('gsmInput')?.value) || 0;
+            const len = parseFloat(document.getElementById('wLength')?.value) || 0;
+            const wid = parseFloat(document.getElementById('wWidth')?.value) || 0;
+            const sheets = parseInt(document.getElementById('wSheets')?.value) || 0;
+
+            if (gsm <= 0 || len <= 0 || wid <= 0 || sheets <= 0) return;
+
+            const weightPerSheetGram = (len * wid * gsm) / 10000;
+            const weightPerReamKg = weightPerSheetGram * 0.5;
+
+            const totalWeightKg = (weightPerSheetGram * sheets) / 1000;
+            const totalWeightTon = totalWeightKg / 1000;
+
+            document.getElementById('resWeightPerSheet').innerHTML = `${weightPerSheetGram.toFixed(2)} <span class="text-lg font-normal">Gram</span>`;
+            document.getElementById('resWeightPerReam').innerHTML = `${weightPerReamKg.toFixed(2)} <span class="text-lg font-normal">Kg</span>`;
+            document.getElementById('resTotalWeightKg').innerHTML = `${totalWeightKg.toFixed(2)} <span class="text-2xl font-normal text-white">Kg</span>`;
+            document.getElementById('resTotalWeightTon').innerText = `(± ${totalWeightTon.toFixed(3)} Ton)`;
+        }
+
+        // --- TAB 3: KALKULATOR ESTIMASI BIAYA ---
+
+        function calculatePricing() {
+            const method = document.getElementById('priceMethod')?.value;
+            const unitPrice = parseFloat(document.getElementById('priceUnitPrice')?.value) || 0;
+            const totalReams = parseFloat(document.getElementById('priceTotalReams')?.value) || 0;
+            const extraCost = parseFloat(document.getElementById('priceExtraCost')?.value) || 0;
+
+            const totalSheets = Math.round(totalReams * 500);
+            const resPriceTotalSheets = document.getElementById('resPriceTotalSheets');
+            if (resPriceTotalSheets) resPriceTotalSheets.innerText = `${totalSheets.toLocaleString('id-ID')} lembar`;
+
+            const kgSpecsDiv = document.getElementById('priceKgSpecs');
+            const rowTotalWeight = document.getElementById('rowTotalWeight');
+
+            let subtotal = 0;
+            let totalWeightKg = 0;
+
+            if (method === 'perKg') {
+                if (kgSpecsDiv) kgSpecsDiv.classList.remove('hidden');
+                if (rowTotalWeight) rowTotalWeight.classList.remove('hidden');
+
+                const pW = parseFloat(document.getElementById('pKgW')?.value) || 0;
+                const pH = parseFloat(document.getElementById('pKgH')?.value) || 0;
+                const gsm = parseFloat(document.getElementById('pKgGsm')?.value) || 0;
+
+                const weightPerSheetGram = (pW * pH * gsm) / 10000;
+                totalWeightKg = (weightPerSheetGram * totalSheets) / 1000;
+                
+                const resPriceTotalWeight = document.getElementById('resPriceTotalWeight');
+                if (resPriceTotalWeight) resPriceTotalWeight.innerText = `${totalWeightKg.toFixed(2)} Kg`;
+                subtotal = totalWeightKg * unitPrice;
+
+            } else if (method === 'perReam') {
+                if (kgSpecsDiv) kgSpecsDiv.classList.add('hidden');
+                if (rowTotalWeight) rowTotalWeight.classList.add('hidden');
+
+                subtotal = totalReams * unitPrice;
+
+            } else if (method === 'perSheet') {
+                if (kgSpecsDiv) kgSpecsDiv.classList.add('hidden');
+                if (rowTotalWeight) rowTotalWeight.classList.add('hidden');
+
+                subtotal = totalSheets * unitPrice;
+            }
+
+            const grandTotal = subtotal + extraCost;
+            const costPerSheet = totalSheets > 0 ? (grandTotal / totalSheets) : 0;
+
+            document.getElementById('resPriceSubtotal').innerText = `Rp ${Math.round(subtotal).toLocaleString('id-ID')}`;
+            document.getElementById('resPriceExtra').innerText = `Rp ${Math.round(extraCost).toLocaleString('id-ID')}`;
+            document.getElementById('resPriceGrandTotal').innerText = `Rp ${Math.round(grandTotal).toLocaleString('id-ID')}`;
+            document.getElementById('resPricePerSheetUnit').innerText = `*Modal per lembar plano: Rp ${Math.round(costPerSheet).toLocaleString('id-ID')}`;
+        }
+
+        // --- TAB 4: KAMUS UKURAN FILTER ---
+
+        function filterSizes() {
+            const query = document.getElementById('searchSize').value.toLowerCase();
+            const cards = document.querySelectorAll('.size-card');
+
+            cards.forEach(card => {
+                const text = card.innerText.toLowerCase();
+                if (text.includes(query)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
